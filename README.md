@@ -29,6 +29,11 @@ npm run dev
 - ability to drop multiple files
 - detect xml format plist and json'ify them too
 - probably move to react because this immediately became an intractable mess
+- support emojis/unicode..?? [this file](public/2.this-file-doesnt-convert-because-of-the-emojis.plist) won't convert correctly right now..!
+
+## credits
+
+the browser-based javascript bplist conversion code was taken from [here](https://gist.github.com/manekinekko/e897e5025048cfa10fedcfd6317aab5d). it seems to have a lineage! (see credits at the top of the file/gist)
 
 ## huh
 
