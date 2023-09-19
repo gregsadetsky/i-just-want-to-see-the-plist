@@ -3,7 +3,7 @@ import { BinaryPlistParserService } from "./binary-plist-parser.service";
 
 window.addEventListener("load", function (event) {
   document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-    <h2 class='dropHere'>drop your .plist file here!</h2>
+    <h2 class='dropHere'>drop your (binary) .plist file here!</h2>
   `;
 
   const dropZoneEl = document.querySelector(".dropHere");

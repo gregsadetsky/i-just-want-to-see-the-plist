@@ -24,6 +24,12 @@ npm run dev
 
 - this tool is deployed to github pages
 
+## TODO/future
+
+- ability to drop multiple files
+- detect xml format plist and json'ify them too
+- probably move to react because this immediately became an intractable mess
+
 ## huh
 
 this was done on day 1 of my residency at [Recurse Center](https://www.recurse.com/)

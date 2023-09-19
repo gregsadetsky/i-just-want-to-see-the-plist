@@ -1,3 +1,6 @@
+// CREDIT: https://gist.github.com/manekinekko/e897e5025048cfa10fedcfd6317aab5d
+// THANK YOUUUUUUUUUUUUUUUUUUU
+
 // const Buffer = require('buffer/').Buffer;
 // Ported to browser from https://githuBuffer.com/joeferner/node-bplist-parser/blob/master/bplistParser.js
 // Inspired by http://code.google.com/p/plist/source/browse/trunk/src/com/dd/plist/BinaryPropertyListParser.java
