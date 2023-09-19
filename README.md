@@ -1,6 +1,6 @@
 # I just want to see the .plist
 
-micro project to easily convert [.plist files](https://en.wikipedia.org/wiki/Property_list) into json objects. [See and use the project here!!](https://gregsadetsky.github.io/i-just-want-to-see-the-plist/)
+micro project to easily convert binary [.plist files](https://en.wikipedia.org/wiki/Property_list) into json objects. [See and use the project here!!](https://gregsadetsky.github.io/i-just-want-to-see-the-plist/)
 
 ## but why
 
