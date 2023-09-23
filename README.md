@@ -29,7 +29,7 @@ npm run dev
 - ability to drop multiple files
 - detect xml format plist and json'ify them too
 - probably move to react because this immediately became an intractable mess
-- support emojis/unicode..?? [this file](public/2.this-file-doesnt-convert-because-of-the-emojis.plist) won't convert correctly right now..!
+- support emojis/unicode..?? [this file](public/2.this-file-doesnt-convert-because-of-the-emojis.plist) won't convert correctly right now..! there's actually a bunch that won't convert -- something wrong with the JS code?? improve it? look at other JS implementations? publish a new JS implementation that better supports binary plists????
 - copy to json immediately after file drop? doesn't seem possible because the document is not the focus and that provokes a security error?
 - show the (formatted) json? or a preview?
 - have an easy way to do it again without having to reload the page
