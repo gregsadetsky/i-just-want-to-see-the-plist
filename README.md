@@ -40,4 +40,4 @@ the browser-based javascript bplist conversion code was taken from [here](https:
 
 ## huh
 
-this was done on day 1 of my residency at [Recurse Center](https://www.recurse.com/)
+this was done as part of residency at [Recurse Center](https://www.recurse.com/)
