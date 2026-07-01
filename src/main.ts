@@ -3,7 +3,7 @@ import { BinaryPlistParserService } from "./binary-plist-parser.service";
 import { unwrapToBplist } from "./unwrap";
 
 const DROP_PROMPT = `drop your (binary) .plist file here!<br/>
-<span class="hint">…also works with signed <code>.shortcut</code>, Apple Archives, and zipped plists</span>`;
+<span class="hint">(also works with other files like <code>.shortcut</code> that are actually .plist's...!)</span>`;
 
 window.addEventListener("load", function () {
   const app = document.querySelector<HTMLDivElement>("#app")!;
