@@ -55,7 +55,7 @@ function showResult(fileName: string, bytes: Uint8Array) {
       ? `<div class="steps">unwrapped <code>${escapeHtml(fileName)}</code> → ${steps
           .map((s) => `<span class="step">${escapeHtml(s)}</span>`)
           .join(" → ")}</div>`
-      : `<div class="steps"><code>${escapeHtml(fileName)}</code> is already a binary plist</div>`;
+      : "";
 
     app.innerHTML = `
       <div class="toolbar">
