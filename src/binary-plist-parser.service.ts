@@ -5,7 +5,7 @@
 // Ported to browser from https://githuBuffer.com/joeferner/node-bplist-parser/blob/master/bplistParser.js
 // Inspired by http://code.google.com/p/plist/source/browse/trunk/src/com/dd/plist/BinaryPropertyListParser.java
 
-import * as bigInt from "big-integer";
+import bigInt from "big-integer";
 import Buffer from "bops";
 
 export const maxObjectSize = 100 * 1000 * 1000; // 100Meg
@@ -19,6 +19,10 @@ export const EPOCH = 978307200000;
 // UID object definition
 export class UID {
   constructor(private id: number) {}
+  // Render like Apple's tools do so NSKeyedArchiver plists stay readable.
+  toJSON() {
+    return { "CF$UID": this.id };
+  }
 }
 
 export class BinaryPlistParserService {
@@ -231,7 +235,6 @@ export class BinaryPlistParserService {
 
       const parsePlistString = (isUtf16?) => {
         isUtf16 = isUtf16 || 0;
-        let enc = "utf8";
         let length = objInfo;
         let stroffset = 1;
         if (objInfo === 0xf) {
@@ -256,14 +259,19 @@ export class BinaryPlistParserService {
         // length is String length -> to get byte length multiply by 2, as 1 character takes 2 bytes in UTF-16
         length *= isUtf16 + 1;
         if (length < maxObjectSize) {
-          let plistString = Buffer.to(
-            buffer.slice(offset + stroffset, offset + stroffset + length),
+          const strBytes = buffer.slice(
+            offset + stroffset,
+            offset + stroffset + length,
           );
-          if (isUtf16) {
-            plistString = this.swapBytes(plistString);
-            enc = "ucs2";
-          }
-          return plistString.toString(enc);
+          // Decode with TextDecoder so that multi-byte characters and UTF-16
+          // surrogate pairs (e.g. emoji 🌟) are handled correctly. Binary
+          // plist strings are ASCII (0x5) or big-endian UTF-16 (0x6).
+          const bytes =
+            strBytes instanceof Uint8Array
+              ? strBytes
+              : Uint8Array.from(strBytes as ArrayLike<number>);
+          const decoder = new TextDecoder(isUtf16 ? "utf-16be" : "utf-8");
+          return decoder.decode(bytes);
         } else {
           throw new Error(
             "To little heap space available! Wanted to read " +
