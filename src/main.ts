@@ -1,79 +1,142 @@
 import "./style.css";
 import { BinaryPlistParserService } from "./binary-plist-parser.service";
+import { unwrapToBplist } from "./unwrap";
 
-window.addEventListener("load", function (event) {
-  document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-    <h2 class='dropHere'>drop your (binary) .plist file here!</h2>
-  `;
+const DROP_PROMPT = `drop your (binary) .plist file here!<br/>
+<span class="hint">…also works with signed <code>.shortcut</code>, Apple Archives, and zipped plists</span>`;
 
-  const dropZoneEl = document.querySelector(".dropHere");
-  console.log("dropZoneEl", dropZoneEl);
+window.addEventListener("load", function () {
+  const app = document.querySelector<HTMLDivElement>("#app")!;
+  app.innerHTML = `<h2 class='dropHere'>${DROP_PROMPT}</h2>`;
+  const dropZoneEl = document.querySelector<HTMLElement>(".dropHere")!;
 
-  function dragHandlerFunction(e) {
-    console.log("dragHandlerFunction");
-
+  function handleDrop(e: DragEvent) {
     e.preventDefault();
     e.stopPropagation();
     dropZoneEl.classList.remove("fileBeingDraggedOver");
-
-    // extract base64 content from dragged file
-    const file = e.dataTransfer.files[0];
-    // read file content and convert to base64
-    const toBase64 = (file) =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-      });
-    toBase64(file).then((base64Content) => {
-      const base64ContentNoPrefix = base64Content.split(",")[1];
-
-      document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-      <button id='copyit' style="color:blue;font-size:25px">click here to copy the json'ified plist into your clipboard!!</button>
-    `;
-      const copyItButtonEl =
-        document.querySelector<HTMLButtonElement>("#copyit")!;
-
-      copyItButtonEl.addEventListener("click", (e) => {
-        const service = new BinaryPlistParserService();
-        navigator.clipboard.writeText(
-          JSON.stringify(service.parse64Content(base64ContentNoPrefix)),
-        );
-        copyItButtonEl.innerText = "copied! click again to copy again";
-      });
-    });
+    const file = e.dataTransfer?.files[0];
+    if (!file) return;
+    file
+      .arrayBuffer()
+      .then((buf) => showResult(file.name, new Uint8Array(buf)))
+      .catch((err) => showError(file.name, err));
   }
 
-  function bindTheDragHandlers(el) {
-    el.addEventListener(
-      "dragenter",
-      (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZoneEl.classList.add("fileBeingDraggedOver");
-      },
-      false,
-    );
-    el.addEventListener(
-      "dragleave",
-      (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZoneEl.classList.remove("fileBeingDraggedOver");
-      },
-      false,
-    );
-    el.addEventListener(
-      "dragover",
-      (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      },
-      false,
-    );
-    el.addEventListener("drop", dragHandlerFunction, false);
+  function bindTheDragHandlers(el: HTMLElement) {
+    el.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZoneEl.classList.add("fileBeingDraggedOver");
+    });
+    el.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZoneEl.classList.remove("fileBeingDraggedOver");
+    });
+    el.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    el.addEventListener("drop", handleDrop as EventListener);
   }
 
   bindTheDragHandlers(dropZoneEl);
 });
+
+function showResult(fileName: string, bytes: Uint8Array) {
+  const app = document.querySelector<HTMLDivElement>("#app")!;
+  try {
+    const { bplist, steps } = unwrapToBplist(bytes);
+    const service = new BinaryPlistParserService();
+    const parsed = service.parse64Content(toBase64(bplist));
+    const json = JSON.stringify(parsed, jsonReplacer, 2);
+
+    const stepsHtml = steps.length
+      ? `<div class="steps">unwrapped <code>${escapeHtml(fileName)}</code> → ${steps
+          .map((s) => `<span class="step">${escapeHtml(s)}</span>`)
+          .join(" → ")}</div>`
+      : `<div class="steps"><code>${escapeHtml(fileName)}</code> is already a binary plist</div>`;
+
+    app.innerHTML = `
+      <div class="toolbar">
+        <button id="copyit">📋 copy JSON to clipboard</button>
+        <button id="reset">↩︎ convert another file</button>
+      </div>
+      ${stepsHtml}
+      <pre id="preview" class="preview"></pre>
+    `;
+    // Use textContent so the raw JSON (incl. emoji) renders safely & exactly.
+    document.querySelector<HTMLPreElement>("#preview")!.textContent = json;
+
+    const copyBtn = document.querySelector<HTMLButtonElement>("#copyit")!;
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(json);
+      copyBtn.textContent = "✅ copied! click to copy again";
+    });
+    document
+      .querySelector<HTMLButtonElement>("#reset")!
+      .addEventListener("click", () => window.location.reload());
+  } catch (err) {
+    showError(fileName, err);
+  }
+}
+
+function showError(fileName: string, err: unknown) {
+  const app = document.querySelector<HTMLDivElement>("#app")!;
+  const msg = err instanceof Error ? err.message : String(err);
+  app.innerHTML = `
+    <div class="error">
+      <strong>couldn't convert <code>${escapeHtml(fileName)}</code></strong>
+      <div>${escapeHtml(msg)}</div>
+    </div>
+    <button id="reset">↩︎ try another file</button>
+  `;
+  document
+    .querySelector<HTMLButtonElement>("#reset")!
+    .addEventListener("click", () => window.location.reload());
+}
+
+/** Make plist-specific values (binary data blobs, bigints) JSON-friendly. */
+function jsonReplacer(_key: string, value: any) {
+  if (
+    value &&
+    typeof value === "object" &&
+    typeof value !== "string" &&
+    typeof value.length === "number" &&
+    value.buffer instanceof ArrayBuffer
+  ) {
+    const bytes: Uint8Array =
+      value instanceof Uint8Array ? value : Uint8Array.from(value);
+    return `<${bytes.length} bytes: ${toHex(bytes, 32)}${
+      bytes.length > 32 ? "…" : ""
+    }>`;
+  }
+  if (typeof value === "bigint") return value.toString();
+  return value;
+}
+
+function toHex(bytes: Uint8Array, max: number) {
+  let s = "";
+  for (let i = 0; i < Math.min(bytes.length, max); i++)
+    s += bytes[i].toString(16).padStart(2, "0");
+  return s;
+}
+
+function toBase64(bytes: Uint8Array): string {
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ]!,
+  );
+}

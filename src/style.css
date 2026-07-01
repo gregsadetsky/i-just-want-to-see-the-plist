@@ -11,7 +11,7 @@ body {
   margin: 0;
   padding: 20px;
   margin: 0;
-  overflow: hidden;
+  font-family: sans-serif;
 }
 
 h2.fileBeingDraggedOver {
@@ -24,4 +24,77 @@ h2.dropHere {
   border: 2px dashed #ccc;
   border-radius: 10px;
   font-family: sans-serif;
+}
+
+h2.dropHere .hint {
+  display: block;
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: normal;
+  color: #999;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.toolbar button {
+  font-size: 16px;
+  padding: 8px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #f7f7f7;
+  cursor: pointer;
+}
+
+.toolbar button:hover {
+  background: #eee;
+}
+
+.steps {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.steps .step {
+  background: #eef4ff;
+  border: 1px solid #cfe0ff;
+  border-radius: 6px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.preview {
+  margin: 0;
+  padding: 16px;
+  background: #1e1e1e;
+  color: #e6e6e6;
+  border-radius: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  max-height: 70vh;
+  overflow: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.error {
+  background: #fff4f4;
+  border: 1px solid #f3c2c2;
+  color: #a12b2b;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  font-family: sans-serif;
+}
+
+.error div {
+  margin-top: 8px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 13px;
+  color: #7a2020;
 }
