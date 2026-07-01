@@ -35,22 +35,7 @@ h2.dropHere .hint {
 }
 
 .toolbar {
-  display: flex;
-  gap: 10px;
   margin-bottom: 12px;
-}
-
-.toolbar button {
-  font-size: 16px;
-  padding: 8px 14px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: #f7f7f7;
-  cursor: pointer;
-}
-
-.toolbar button:hover {
-  background: #eee;
 }
 
 .steps {

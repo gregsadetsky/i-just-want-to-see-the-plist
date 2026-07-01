@@ -55,8 +55,8 @@ function showResult(fileName: string, bytes: Uint8Array) {
 
     app.innerHTML = `
       <div class="toolbar">
-        <button id="copyit">📋 copy JSON to clipboard</button>
-        <button id="reset">↩︎ convert another file</button>
+        <button id="copyit">copy JSON to clipboard</button>
+        <button id="reset">convert another file</button>
       </div>
       ${stepsHtml}
       <pre id="preview" class="preview"></pre>
@@ -67,7 +67,7 @@ function showResult(fileName: string, bytes: Uint8Array) {
     const copyBtn = document.querySelector<HTMLButtonElement>("#copyit")!;
     copyBtn.addEventListener("click", () => {
       navigator.clipboard.writeText(json);
-      copyBtn.textContent = "✅ copied! click to copy again";
+      copyBtn.textContent = "copied! click to copy again";
     });
     document
       .querySelector<HTMLButtonElement>("#reset")!
@@ -85,7 +85,7 @@ function showError(fileName: string, err: unknown) {
       <strong>couldn't convert <code>${escapeHtml(fileName)}</code></strong>
       <div>${escapeHtml(msg)}</div>
     </div>
-    <button id="reset">↩︎ try another file</button>
+    <button id="reset">try another file</button>
   `;
   document
     .querySelector<HTMLButtonElement>("#reset")!
