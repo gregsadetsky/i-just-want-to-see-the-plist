@@ -46,16 +46,12 @@ window.addEventListener("load", function () {
 function showResult(fileName: string, bytes: Uint8Array) {
   const app = document.querySelector<HTMLDivElement>("#app")!;
   try {
-    const { bplist, steps } = unwrapToBplist(bytes);
+    const { bplist } = unwrapToBplist(bytes);
     const service = new BinaryPlistParserService();
     const parsed = service.parse64Content(toBase64(bplist));
     const json = JSON.stringify(parsed, jsonReplacer, 2);
 
-    const stepsHtml = steps.length
-      ? `<div class="steps">unwrapped <code>${escapeHtml(fileName)}</code> → ${steps
-          .map((s) => `<span class="step">${escapeHtml(s)}</span>`)
-          .join(" → ")}</div>`
-      : "";
+    const stepsHtml = `<div class="steps"><code>${escapeHtml(fileName)}</code></div>`;
 
     app.innerHTML = `
       <div class="toolbar">
